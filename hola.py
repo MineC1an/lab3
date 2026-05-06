@@ -141,7 +141,7 @@ def filtros(Dataset, df):
         return
 
     st.markdown("---")
-    st.markdown("## 🔍 Ejercicio 3 – Filtrado de Datos")
+    st.markdown("## 🔍 Filtrado de Datos")
 
     # ── Electric Vehicle ────────────────────────────────────────────
     if Dataset == "electric_vehicle":
@@ -273,7 +273,7 @@ def filtros(Dataset, df):
 # ════════════════════════════════════════════════════════════════════
 # Ejercicio 4 – Exploración Avanzada
 # ════════════════════════════════════════════════════════════════════
-def ejercicio4(Dataset, df):
+def ExploracionAvanzada(Dataset, df):
     """Nueva variable categórica, conteo, gráfico de barras y análisis agrupado."""
 
     if Dataset not in DATASETS_CONOCIDOS:
@@ -281,7 +281,7 @@ def ejercicio4(Dataset, df):
         return
 
     st.markdown("---")
-    st.markdown("## 📊 Ejercicio 4 – Exploración Avanzada")
+    st.markdown("## 📊 Exploración Avanzada")
 
     df = df.copy()  # No modificar el original
 
@@ -506,14 +506,14 @@ rutas_csv_actualizado = {
     "steam":            "Data/steam_store_data_2024_Actualizado.csv",
 }
 
-def ejercicio6(Dataset, df):
+def Guardadoderesultados(Dataset, df):
     """Guarda el DataFrame actualizado (nuevos registros + columna categórica) en un CSV nuevo."""
 
     if Dataset not in DATASETS_CONOCIDOS:
         return
 
     st.markdown("---")
-    st.markdown("## 💾 Ejercicio 6 – Guardado de Resultados")
+    st.markdown("## 💾 Guardado de Resultados")
 
     df = df.copy()
 
@@ -585,21 +585,40 @@ def ejercicio6(Dataset, df):
 # App principal
 # ════════════════════════════════════════════════════════════════════
 st.title("Trabajo de Barrera y Ajú")
-
+ 
 if "bottones" not in st.session_state:
     st.session_state.bottones = ""
-
+ 
 st.sidebar.markdown("## 🗂️ Datasets")
-
+ 
 for nombre_datasenter in datos:
     nombre_bonito = f"📁 {nombre_datasenter.replace('_', ' ').title()}"
     if st.sidebar.button(nombre_bonito, use_container_width=True):
         st.session_state.bottones = nombre_datasenter
-
+ 
+st.sidebar.markdown("---")
+ 
+with st.sidebar.popover("➕ Agregar nueva base de datos", use_container_width=True):
+    st.markdown("**📂 Sube tu archivo CSV**")
+    archivo_subido = st.file_uploader("Selecciona un archivo CSV", type=["csv"])
+ 
+    if archivo_subido is not None:
+        nombre_clave = archivo_subido.name.replace(".csv", "").lower().replace(" ", "_")
+        if nombre_clave not in datos:
+            df_nuevo = pd.read_csv(archivo_subido)
+            datos[nombre_clave] = df_nuevo
+            rutas_csv[nombre_clave] = f"Data/{archivo_subido.name}"
+            rutas_csv_actualizado[nombre_clave] = f"Data/{archivo_subido.name.replace('.csv', '')}_Actualizado.csv"
+            st.success(f"✅ Dataset **{nombre_clave}** agregado correctamente.")
+        else:
+            st.info(f"ℹ️ El dataset **{nombre_clave}** ya existe.")
+ 
+        if st.button("📂 Abrir dataset", key="abrir_nuevo"):
+            st.session_state.bottones = nombre_clave
+            st.rerun()
+ 
 if st.session_state.bottones in datos:
     df_resultado, cols = tabla(st.session_state.bottones)   # Ejercicio 1 y 2
     filtros(st.session_state.bottones, df_resultado)         # Ejercicio 3
-    ejercicio4(st.session_state.bottones, df_resultado)      # Ejercicio 4
-    ejercicio6(st.session_state.bottones, df_resultado)      # Ejercicio 6
-
-
+    ExploracionAvanzada(st.session_state.bottones, df_resultado)      # Ejercicio 4
+    Guardadoderesultados(st.session_state.bottones, df_resultado)      # Ejercicio 6
